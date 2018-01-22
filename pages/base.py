@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as expected
 from selenium.webdriver.support.select import Select
 
 from pages.auth0 import Auth0
+from pages.two_factor_authentication import TwoFactorAuthentication
 from tests import conftest
 
 
@@ -59,6 +60,13 @@ class Base(Page):
         login_link = conftest.login_link(email)
         self.selenium.get(login_link)
         self.wait.until(lambda s: self.is_user_loggedin)
+
+    def login_with_github(self, username, password, passcode):
+        self.click_sign_in_button()
+        auth0 = Auth0(self.selenium, self.base_url)
+        auth0.login_with_github(username, password)
+        tfa = TwoFactorAuthentication(self.selenium, self.base_url)
+        tfa.enter_github_passcode(passcode)
 
     def create_new_user(self, email):
         self.login(email)
@@ -138,6 +146,12 @@ class Base(Page):
             self.click_options()
             self.find_element(*self._logout_menu_item_locator).click()
             self.wait.until(lambda s: not self.is_logout_menu_item_present)
+
+        def click_groups_menu_item(self):
+            self.click_options()
+            self.find_element(*self._groups_menu_item_locator).click()
+            from pages.groups_page import GroupsPage
+            return GroupsPage(self.selenium, self.base_url)
 
     class Footer(Page):
 

@@ -13,6 +13,11 @@ class Auth0(Page):
     _enter_locator = (By.ID, 'enter-initial')
     _send_email_locator = (By.CSS_SELECTOR, 'button[data-handler=send-passwordless-link]')
 
+    _login_with_github_button_locator = (By.CSS_SELECTOR, 'button[data-handler="authorise-github"]')
+    _github_username_field_locator = (By.ID, 'login_field')
+    _github_password_field_locator = (By.ID, 'password')
+    _github_sign_in_button_locator = (By.CSS_SELECTOR, '.btn.btn-primary.btn-block')
+
     def __new__(cls, driver, base_url, **kwargs):
         if 'mozillians.org' in base_url:
             return Legacy(driver, base_url, **kwargs)
@@ -24,6 +29,12 @@ class Auth0(Page):
         self.find_element(*self._enter_locator).click()
         self.wait.until(expected.visibility_of_element_located(
             self._send_email_locator)).click()
+
+    def login_with_github(self, username, password):
+        self.find_element(*self._login_with_github_button_locator).click()
+        self.find_element(*self._github_username_field_locator).send_keys(username)
+        self.find_element(*self._github_password_field_locator).send_keys(password)
+        self.find_element(*self._github_sign_in_button_locator).click()
 
 
 class Legacy(Page):

@@ -8,6 +8,7 @@ from random import randrange
 import pytest
 
 from pages.home_page import Home
+from tests import conftest
 
 
 class TestGroup:
@@ -18,9 +19,11 @@ class TestGroup:
         home_page.login(vouched_user['email'])
 
         # Create a new group
-        group_name = str(uuid.uuid4())
-        settings = home_page.header.click_settings_menu_item()
-        group = settings.create_group(group_name)
+        group_name = 'moz-group-{0}'.format(uuid.uuid4())
+        groups_page = home_page.header.click_groups_menu_item()
+        create_group_page = groups_page.click_create_group_main_button()
+        create_group_page.create_group_name(group_name)
+        group = create_group_page.click_create_group_submit()
 
         # New group data
         new_group_description = 'This is an automated group.'
@@ -45,9 +48,11 @@ class TestGroup:
         home_page.login(vouched_user['email'])
 
         # Create a new group
-        group_name = str(uuid.uuid4())
-        settings = home_page.header.click_settings_menu_item()
-        group = settings.create_group(group_name)
+        group_name = 'moz-group-{0}'.format(uuid.uuid4())
+        groups_page = home_page.header.click_groups_menu_item()
+        create_group_page = groups_page.click_create_group_main_button()
+        create_group_page.create_group_name(group_name)
+        group = create_group_page.click_create_group_submit()
 
         # Delete should only work with acknowledgement
         delete_form = group.description.delete_group
@@ -63,9 +68,11 @@ class TestGroup:
         home_page.login(vouched_user['email'])
 
         # Create a new group
-        group_name = str(uuid.uuid4())
-        settings = home_page.header.click_settings_menu_item()
-        group = settings.create_group(group_name)
+        group_name = 'moz-group-{0}'.format(uuid.uuid4())
+        groups_page = home_page.header.click_groups_menu_item()
+        create_group_page = groups_page.click_create_group_main_button()
+        create_group_page.create_group_name(group_name)
+        group = create_group_page.click_create_group_submit()
 
         # Change group type to reveal criteria
         group_type = group.access.group_type
@@ -79,9 +86,11 @@ class TestGroup:
         home_page.login(vouched_user['email'])
 
         # Create a new group
-        group_name = str(uuid.uuid4())
-        settings = home_page.header.click_settings_menu_item()
-        group = settings.create_group(group_name)
+        group_name = 'moz-group-{0}'.format(uuid.uuid4())
+        groups_page = home_page.header.click_groups_menu_item()
+        create_group_page = groups_page.click_create_group_main_button()
+        create_group_page.create_group_name(group_name)
+        group = create_group_page.click_create_group_submit()
 
         # Invite a new member
         invite = group.invitations.invite
@@ -93,3 +102,12 @@ class TestGroup:
         invitations = group.invitations.invitations_list
         random_profile = randrange(len(invitations.search_invitation_list))
         assert new_member in invitations.search_invitation_list[random_profile].name
+
+    @pytest.mark.credentials
+    def test_github_non_nda_user_cannot_create_access_group(self, base_url, selenium, github_non_nda_user):
+        home_page = Home(selenium, base_url).open()
+        passcode = conftest.passcode(github_non_nda_user['secret'])
+        home_page.login_with_github(github_non_nda_user['username'], github_non_nda_user['password'], passcode)
+        groups_page = home_page.header.click_groups_menu_item()
+        create_group_page = groups_page.click_create_group_main_button()
+        assert not create_group_page.is_access_group_present

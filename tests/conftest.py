@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import pyotp
 import uuid
 from urlparse import urlparse
 
@@ -54,6 +55,17 @@ def private_user(stored_users):
 @pytest.fixture(scope='session')
 def unvouched_user(stored_users):
     return stored_users['unvouched']
+
+
+@pytest.fixture(scope='session')
+def github_non_nda_user(stored_users):
+    return stored_users['github_non_nda']
+
+
+@pytest.fixture
+def passcode(secret_seed):
+    totp = pyotp.TOTP(secret_seed)
+    return totp.now()
 
 
 @pytest.fixture
