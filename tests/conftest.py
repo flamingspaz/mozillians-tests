@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pyotp
 import uuid
 from urlparse import urlparse
 
+import pyotp
 import pytest
 
 from tests import restmail
