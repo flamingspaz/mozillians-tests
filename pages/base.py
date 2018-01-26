@@ -9,7 +9,6 @@ from selenium.webdriver.support import expected_conditions as expected
 from selenium.webdriver.support.select import Select
 
 from pages.auth0 import Auth0
-from pages.two_factor_authentication import TwoFactorAuthentication
 from tests import conftest
 
 
@@ -64,9 +63,8 @@ class Base(Page):
     def login_with_github(self, username, password, passcode):
         self.click_sign_in_button()
         auth0 = Auth0(self.selenium, self.base_url)
-        auth0.login_with_github(username, password)
-        tfa = TwoFactorAuthentication(self.selenium, self.base_url)
-        tfa.enter_github_passcode(passcode)
+        github = auth0.click_login_with_github()
+        github.login_with_github(username, password, passcode)
 
     def create_new_user(self, email):
         self.login(email)

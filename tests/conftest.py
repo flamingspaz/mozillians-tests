@@ -63,8 +63,8 @@ def github_non_nda_user(stored_users):
 
 
 @pytest.fixture
-def passcode(secret_seed):
-    totp = pyotp.TOTP(secret_seed)
+def passcode(github_non_nda_user):
+    totp = pyotp.TOTP(github_non_nda_user['secret'])
     return totp.now()
 
 

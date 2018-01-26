@@ -175,9 +175,7 @@ class TestProfile:
         home_page = Home(selenium, base_url).open()
         home_page.login(vouched_user['email'])
         groups_page = home_page.header.click_groups_menu_item()
-        create_group_page = groups_page.click_create_group_main_button()
-        create_group_page.create_group_name(group_name)
-        edit_group = create_group_page.click_create_group_submit()
+        edit_group = groups_page.create_group(group_name)
 
         search_listings = edit_group.header.search_for(group_name)
 
