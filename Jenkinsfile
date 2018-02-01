@@ -4,9 +4,13 @@ def capabilities = [
   version: '57.0',
   platform: 'Windows 10'
 ]
-
+def testImage
 pipeline {
-  agent any
+  agent {
+        node {
+            label 'mesos-testing'
+        }
+    }
   libraries {
     lib('fxtest@1.10')
   }
@@ -16,38 +20,38 @@ pipeline {
     timeout(time: 1, unit: 'HOURS')
   }
   stages {
+    stage('Prep') {
+        steps {
+            script {testImage = docker.build("mozillians-tests:${env.BUILD_ID}")}
+        }
+    }
     stage('Lint') {
-      agent {
-        dockerfile true
-      }
       steps {
-        sh "flake8"
+        script{          testImage.inside {
+                    sh "flake8"
+                }}
       }
     }
     stage('Test') {
-      agent {
-        dockerfile true
-      }
-      environment {
-        VARIABLES = credentials('MOZILLIANS_VARIABLES')
-        PYTEST_PROCESSES = "${PYTEST_PROCESSES ?: "auto"}"
-        PULSE = credentials('PULSE')
-        SAUCELABS = credentials('SAUCELABS')
-      }
       steps {
+    script{sh "echo yes"}
+/*
         writeCapabilities(capabilities, 'capabilities.json')
-        sh "pytest " +
-          "-n=${PYTEST_PROCESSES} " +
-          "--tb=short " +
-          "--color=yes " +
-          "--driver=SauceLabs " +
-          "--variables=capabilities.json " +
-          "--variables=${VARIABLES} " +
-          "--junit-xml=results/junit.xml " +
-          "--html=results/index.html " +
-          "--self-contained-html " +
-          "--log-raw=results/raw.txt " +
-          "--log-tbpl=results/tbpl.txt"
+        testImage.insde('-e VARIABLES=' + credentials('MOZILLIANS_VARIABLES') + " -e PYTEST_PROCESSES=${PYTEST_PROCESSES ?: "auto"}" + '-e PULSE=' + credentials('PULSE') + ' -e SAUCELABS=' + credentials('SAUCELABS')) {
+            sh "pytest " +
+              "-n=${PYTEST_PROCESSES} " +
+              "--tb=short " +
+              "--color=yes " +
+              "--driver=SauceLabs " +
+              "--variables=capabilities.json " +
+              "--variables=${VARIABLES} " +
+              "--junit-xml=results/junit.xml " +
+              "--html=results/index.html " +
+              "--self-contained-html " +
+              "--log-raw=results/raw.txt " +
+              "--log-tbpl=results/tbpl.txt"
+            }
+*/
       }
       post {
         always {
